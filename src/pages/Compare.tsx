@@ -1,15 +1,23 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { VideoComparison } from "@/components/compare/video-comparison";
 import { MetricsDashboard } from "@/components/compare/metrics-dashboard";
+import { ProcessedVideo } from "@/services/video-encoder";
 
 const Compare = () => {
+  const [videoData, setVideoData] = useState<ProcessedVideo | null>(null);
+
   useEffect(() => {
     // Smooth scroll to top on page load
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  // Handler for when a video is uploaded and processed
+  const handleVideoProcessed = (data: ProcessedVideo) => {
+    setVideoData(data);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -23,8 +31,8 @@ const Compare = () => {
             </p>
           </div>
           
-          <VideoComparison />
-          <MetricsDashboard />
+          <VideoComparison onVideoUploaded={handleVideoProcessed} />
+          <MetricsDashboard videoData={videoData} />
         </div>
       </main>
       <Footer />

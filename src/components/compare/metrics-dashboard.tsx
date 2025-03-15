@@ -1,80 +1,186 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/ui/custom-button";
+import { ProcessedVideo } from "@/services/video-encoder";
 
-export function MetricsDashboard() {
+interface MetricsDashboardProps {
+  videoData?: ProcessedVideo | null;
+}
+
+export function MetricsDashboard({ videoData }: MetricsDashboardProps = {}) {
   const [selectedTab, setSelectedTab] = useState("overview");
 
-  // Mock data for demonstration purposes
-  const bitrateData = [
-    { name: "0s", "Content-Aware": 2.1, "HLS": 3.2, "DASH": 3.5 },
-    { name: "10s", "Content-Aware": 1.8, "HLS": 3.2, "DASH": 3.5 },
-    { name: "20s", "Content-Aware": 3.2, "HLS": 2.4, "DASH": 3.5 },
-    { name: "30s", "Content-Aware": 2.9, "HLS": 3.8, "DASH": 2.8 },
-    { name: "40s", "Content-Aware": 1.5, "HLS": 1.9, "DASH": 3.5 },
-    { name: "50s", "Content-Aware": 2.8, "HLS": 3.0, "DASH": 3.1 },
-    { name: "60s", "Content-Aware": 3.1, "HLS": 3.5, "DASH": 3.5 },
-  ];
-
-  const qualityData = [
-    { name: "0s", "Content-Aware": 8.5, "HLS": 8.2, "DASH": 8.5 },
-    { name: "10s", "Content-Aware": 8.7, "HLS": 8.3, "DASH": 8.5 },
-    { name: "20s", "Content-Aware": 8.9, "HLS": 7.6, "DASH": 8.5 },
-    { name: "30s", "Content-Aware": 8.8, "HLS": 8.5, "DASH": 8.0 },
-    { name: "40s", "Content-Aware": 8.2, "HLS": 8.0, "DASH": 8.5 },
-    { name: "50s", "Content-Aware": 8.6, "HLS": 8.2, "DASH": 8.4 },
-    { name: "60s", "Content-Aware": 8.8, "HLS": 8.4, "DASH": 8.5 },
-  ];
-
-  const bandwidthData = [
-    { name: "0s", "Content-Aware": 68, "HLS": 85, "DASH": 90 },
-    { name: "10s", "Content-Aware": 60, "HLS": 85, "DASH": 90 },
-    { name: "20s", "Content-Aware": 78, "HLS": 62, "DASH": 90 },
-    { name: "30s", "Content-Aware": 75, "HLS": 92, "DASH": 70 },
-    { name: "40s", "Content-Aware": 58, "HLS": 56, "DASH": 90 },
-    { name: "50s", "Content-Aware": 72, "HLS": 80, "DASH": 85 },
-    { name: "60s", "Content-Aware": 75, "HLS": 88, "DASH": 90 },
-  ];
-
-  const comparisonData = [
-    { 
-      metric: "Average Bitrate", 
-      "Content-Aware": 2.5, 
-      "HLS": 3.2, 
-      "DASH": 3.5,
-      unit: "Mbps" 
-    },
-    { 
-      metric: "Quality Score", 
-      "Content-Aware": 8.7, 
-      "HLS": 8.3, 
-      "DASH": 8.5,
-      unit: "/10" 
-    },
-    { 
-      metric: "Load Time", 
-      "Content-Aware": 1.2, 
-      "HLS": 0.8, 
-      "DASH": 0.9,
-      unit: "seconds" 
-    },
-    { 
-      metric: "Bandwidth Usage", 
-      "Content-Aware": 70, 
-      "HLS": 85, 
-      "DASH": 90,
-      unit: "%" 
-    },
-    { 
-      metric: "File Size", 
-      "Content-Aware": 28, 
-      "HLS": 37, 
-      "DASH": 40,
-      unit: "MB" 
+  const generateTimeSeriesData = (videoData: ProcessedVideo | null) => {
+    if (!videoData) {
+      return {
+        bitrateData: [
+          { name: "0s", "Content-Aware": 2.1, "HLS": 3.2, "DASH": 3.5 },
+          { name: "10s", "Content-Aware": 1.8, "HLS": 3.2, "DASH": 3.5 },
+          { name: "20s", "Content-Aware": 3.2, "HLS": 2.4, "DASH": 3.5 },
+          { name: "30s", "Content-Aware": 2.9, "HLS": 3.8, "DASH": 2.8 },
+          { name: "40s", "Content-Aware": 1.5, "HLS": 1.9, "DASH": 3.5 },
+          { name: "50s", "Content-Aware": 2.8, "HLS": 3.0, "DASH": 3.1 },
+          { name: "60s", "Content-Aware": 3.1, "HLS": 3.5, "DASH": 3.5 },
+        ],
+        qualityData: [
+          { name: "0s", "Content-Aware": 8.5, "HLS": 8.2, "DASH": 8.5 },
+          { name: "10s", "Content-Aware": 8.7, "HLS": 8.3, "DASH": 8.5 },
+          { name: "20s", "Content-Aware": 8.9, "HLS": 7.6, "DASH": 8.5 },
+          { name: "30s", "Content-Aware": 8.8, "HLS": 8.5, "DASH": 8.0 },
+          { name: "40s", "Content-Aware": 8.2, "HLS": 8.0, "DASH": 8.5 },
+          { name: "50s", "Content-Aware": 8.6, "HLS": 8.2, "DASH": 8.4 },
+          { name: "60s", "Content-Aware": 8.8, "HLS": 8.4, "DASH": 8.5 },
+        ],
+        bandwidthData: [
+          { name: "0s", "Content-Aware": 68, "HLS": 85, "DASH": 90 },
+          { name: "10s", "Content-Aware": 60, "HLS": 85, "DASH": 90 },
+          { name: "20s", "Content-Aware": 78, "HLS": 62, "DASH": 90 },
+          { name: "30s", "Content-Aware": 75, "HLS": 92, "DASH": 70 },
+          { name: "40s", "Content-Aware": 58, "HLS": 56, "DASH": 90 },
+          { name: "50s", "Content-Aware": 72, "HLS": 80, "DASH": 85 },
+          { name: "60s", "Content-Aware": 75, "HLS": 88, "DASH": 90 },
+        ]
+      };
     }
-  ];
+
+    const timePoints = ["0s", "10s", "20s", "30s", "40s", "50s", "60s"];
+    
+    const caBaseBitrate = parseFloat(videoData.formats.contentAware.metrics.bitrate.split(" ")[0]);
+    const hlsBaseBitrate = parseFloat(videoData.formats.hls.metrics.bitrate.split(" ")[0]);
+    const dashBaseBitrate = parseFloat(videoData.formats.dash.metrics.bitrate.split(" ")[0]);
+    
+    const caBaseQuality = videoData.formats.contentAware.metrics.quality;
+    const hlsBaseQuality = videoData.formats.hls.metrics.quality;
+    const dashBaseQuality = videoData.formats.dash.metrics.quality;
+    
+    const caBandwidth = parseInt(videoData.formats.contentAware.metrics.bandwidth.replace(/\D/g, ''));
+    const hlsBandwidth = parseInt(videoData.formats.hls.metrics.bandwidth.replace(/\D/g, ''));
+    const dashBandwidth = parseInt(videoData.formats.dash.metrics.bandwidth.replace(/\D/g, '));
+    
+    return {
+      bitrateData: timePoints.map((tp, i) => ({
+        name: tp,
+        "Content-Aware": +(caBaseBitrate * (1 + (Math.sin(i) * 0.4))).toFixed(1),
+        "HLS": +(hlsBaseBitrate * (1 + (Math.cos(i) * 0.2))).toFixed(1),
+        "DASH": +(dashBaseBitrate * (1 + (Math.sin(i/2) * 0.1))).toFixed(1),
+      })),
+      
+      qualityData: timePoints.map((tp, i) => ({
+        name: tp,
+        "Content-Aware": +(caBaseQuality * (1 + (Math.sin(i/2) * 0.05))).toFixed(1),
+        "HLS": +(hlsBaseQuality * (1 + (Math.cos(i) * 0.07))).toFixed(1),
+        "DASH": +(dashBaseQuality * (1 + (Math.sin(i) * 0.03))).toFixed(1),
+      })),
+      
+      bandwidthData: timePoints.map((tp, i) => ({
+        name: tp,
+        "Content-Aware": Math.floor(caBandwidth * (1 + (Math.sin(i) * 0.15))),
+        "HLS": Math.floor(hlsBandwidth * (1 + (Math.cos(i) * 0.1))),
+        "DASH": Math.floor(dashBandwidth * (1 + (Math.sin(i/2) * 0.05))),
+      }))
+    };
+  };
+
+  const generateComparisonData = (videoData: ProcessedVideo | null) => {
+    if (!videoData) {
+      return [
+        { 
+          metric: "Average Bitrate", 
+          "Content-Aware": 2.5, 
+          "HLS": 3.2, 
+          "DASH": 3.5,
+          unit: "Mbps" 
+        },
+        { 
+          metric: "Quality Score", 
+          "Content-Aware": 8.7, 
+          "HLS": 8.3, 
+          "DASH": 8.5,
+          unit: "/10" 
+        },
+        { 
+          metric: "Load Time", 
+          "Content-Aware": 1.2, 
+          "HLS": 0.8, 
+          "DASH": 0.9,
+          unit: "seconds" 
+        },
+        { 
+          metric: "Bandwidth Usage", 
+          "Content-Aware": 70, 
+          "HLS": 85, 
+          "DASH": 90,
+          unit: "%" 
+        },
+        { 
+          metric: "File Size", 
+          "Content-Aware": 28, 
+          "HLS": 37, 
+          "DASH": 40,
+          unit: "MB" 
+        }
+      ];
+    }
+
+    const caLoadTime = parseFloat(videoData.formats.contentAware.metrics.loadTime.replace('s', ''));
+    const hlsLoadTime = parseFloat(videoData.formats.hls.metrics.loadTime.replace('s', ''));
+    const dashLoadTime = parseFloat(videoData.formats.dash.metrics.loadTime.replace('s', ''));
+    
+    const caBitrate = parseFloat(videoData.formats.contentAware.metrics.bitrate.split(' ')[0]);
+    const hlsBitrate = parseFloat(videoData.formats.hls.metrics.bitrate.split(' ')[0]);
+    const dashBitrate = parseFloat(videoData.formats.dash.metrics.bitrate.split(' ')[0]);
+    
+    const caBandwidth = parseInt(videoData.formats.contentAware.metrics.bandwidth.replace(/\D/g, ''));
+    const hlsBandwidth = parseInt(videoData.formats.hls.metrics.bandwidth.replace(/\D/g, ''));
+    const dashBandwidth = parseInt(videoData.formats.dash.metrics.bandwidth.replace(/\D/g, '));
+    
+    const originalSize = Math.round(videoData.size / (1024 * 1024)); // MB
+    const caSize = Math.round(originalSize * (caBandwidth / 100));
+    const hlsSize = Math.round(originalSize * (hlsBandwidth / 100));
+    const dashSize = Math.round(originalSize * (dashBandwidth / 100));
+    
+    return [
+      { 
+        metric: "Average Bitrate", 
+        "Content-Aware": caBitrate, 
+        "HLS": hlsBitrate, 
+        "DASH": dashBitrate,
+        unit: "Mbps" 
+      },
+      { 
+        metric: "Quality Score", 
+        "Content-Aware": videoData.formats.contentAware.metrics.quality, 
+        "HLS": videoData.formats.hls.metrics.quality, 
+        "DASH": videoData.formats.dash.metrics.quality,
+        unit: "/10" 
+      },
+      { 
+        metric: "Load Time", 
+        "Content-Aware": caLoadTime, 
+        "HLS": hlsLoadTime, 
+        "DASH": dashLoadTime,
+        unit: "seconds" 
+      },
+      { 
+        metric: "Bandwidth Usage", 
+        "Content-Aware": caBandwidth, 
+        "HLS": hlsBandwidth, 
+        "DASH": dashBandwidth,
+        unit: "%" 
+      },
+      { 
+        metric: "File Size", 
+        "Content-Aware": caSize, 
+        "HLS": hlsSize, 
+        "DASH": dashSize,
+        unit: "MB" 
+      }
+    ];
+  };
+
+  const { bitrateData, qualityData, bandwidthData } = generateTimeSeriesData(videoData);
+  const comparisonData = generateComparisonData(videoData);
 
   const tabs = [
     { id: "overview", label: "Overview" },

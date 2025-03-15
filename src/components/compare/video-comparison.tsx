@@ -1,20 +1,15 @@
-
 import { useState, useRef, useEffect } from "react";
 import { CustomButton } from "@/components/ui/custom-button";
 import { cn } from "@/lib/utils";
 import { VideoUpload } from "./video-upload";
+import { ProcessedVideo, EncodingFormat } from "@/services/video-encoder";
 
 interface VideoPlayerProps {
   title: string;
   source?: string;
   placeholder?: string;
   encodingMethod: string;
-  metrics: {
-    bitrate: string;
-    quality: number;
-    loadTime: string;
-    bandwidth: string;
-  };
+  metrics: EncodingFormat["metrics"];
 }
 
 const VideoPlayer = ({ title, source, placeholder, encodingMethod, metrics }: VideoPlayerProps) => {
@@ -126,12 +121,15 @@ const VideoPlayer = ({ title, source, placeholder, encodingMethod, metrics }: Vi
   );
 };
 
-export function VideoComparison() {
+interface VideoComparisonProps {
+  onVideoUploaded?: (data: ProcessedVideo) => void;
+}
+
+export function VideoComparison({ onVideoUploaded }: VideoComparisonProps) {
   const [layout, setLayout] = useState<"grid" | "vertical">("grid");
   const [showControls, setShowControls] = useState(true);
-  const [videoData, setVideoData] = useState<any>(null);
+  const [videoData, setVideoData] = useState<ProcessedVideo | null>(null);
   
-  // Default mock data for demonstration
   const defaultVideos = [
     {
       id: 1,
@@ -168,7 +166,6 @@ export function VideoComparison() {
     }
   ];
 
-  // Videos to display
   const videos = videoData ? [
     {
       id: 1,
@@ -193,8 +190,11 @@ export function VideoComparison() {
     }
   ] : defaultVideos;
 
-  const handleVideoUploaded = (data: any) => {
+  const handleVideoUploaded = (data: ProcessedVideo) => {
     setVideoData(data);
+    if (onVideoUploaded) {
+      onVideoUploaded(data);
+    }
   };
 
   return (

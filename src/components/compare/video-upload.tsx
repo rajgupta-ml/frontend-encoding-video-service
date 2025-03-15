@@ -4,88 +4,90 @@ import { CustomButton } from "@/components/ui/custom-button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { VideoEncoderService, EncodingProgress } from "@/services/video-encoder";
 
 export function VideoUpload({ onVideoUploaded }: { onVideoUploaded: (videoData: any) => void }) {
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
+  const [encodingProgress, setEncodingProgress] = useState<{ [key: string]: EncodingProgress }>({});
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
 
-  const uploadVideo = async () => {
+  const processVideo = async () => {
     if (!selectedFile) {
       toast.error("Please select a video file first");
       return;
     }
 
     setUploading(true);
-    setProgress(0);
+    setEncodingProgress({});
     
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 95) {
-          clearInterval(interval);
-          return prevProgress;
-        }
-        return prevProgress + 5;
-      });
-    }, 300);
-
     try {
-      // Simulate API call for processing
-      setTimeout(() => {
-        clearInterval(interval);
-        setProgress(100);
-        
-        // Mock response data
-        const mockVideoData = {
-          id: "video-" + Date.now(),
-          name: selectedFile.name,
-          size: selectedFile.size,
-          formats: {
-            hls: {
-              url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-              metrics: {
-                bitrate: "3.2 Mbps (adaptive)",
-                quality: 8.3,
-                loadTime: "0.8s",
-                bandwidth: "~85% of original"
-              }
-            },
-            dash: {
-              url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-              metrics: {
-                bitrate: "3.5 Mbps (adaptive)",
-                quality: 8.5,
-                loadTime: "0.9s",
-                bandwidth: "~90% of original"
-              }
-            },
-            contentAware: {
-              url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-              metrics: {
-                bitrate: "2.5 Mbps (variable)",
-                quality: 8.7,
-                loadTime: "1.2s",
-                bandwidth: "~70% of original"
-              }
-            }
-          }
-        };
-        
-        toast.success("Video uploaded and processed successfully!");
-        onVideoUploaded(mockVideoData);
-        setUploading(false);
-        setSelectedFile(null);
-      }, 3000);
+      // Process the video with our encoder service
+      const processedVideo = await VideoEncoderService.encodeVideo(
+        selectedFile,
+        (progress) => {
+          // Update progress for this specific format
+          setEncodingProgress(prev => ({
+            ...prev,
+            [progress.format]: progress
+          }));
+        }
+      );
+      
+      toast.success("Video processed successfully!");
+      onVideoUploaded(processedVideo);
     } catch (error) {
-      toast.error("Error uploading video");
+      console.error("Error processing video:", error);
+      toast.error("Error processing video. Please try again.");
+    } finally {
       setUploading(false);
+      setSelectedFile(null);
+    }
+  };
+
+  // Calculate overall progress across all formats
+  const calculateOverallProgress = () => {
+    if (Object.keys(encodingProgress).length === 0) return 0;
+    
+    const totalProgress = Object.values(encodingProgress).reduce(
+      (sum, format) => sum + format.percent, 
+      0
+    );
+    
+    return Math.floor(totalProgress / Object.keys(encodingProgress).length);
+  };
+
+  // Get the current encoding stage description
+  const getCurrentStage = () => {
+    const formats = Object.values(encodingProgress);
+    if (formats.length === 0) return "Processing video...";
+    
+    const stages = formats.map(f => f.stage);
+    // Find the most common stage
+    const stageCounts = stages.reduce((acc, stage) => {
+      acc[stage] = (acc[stage] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const currentStage = Object.entries(stageCounts)
+      .sort((a, b) => b[1] - a[1])[0][0];
+    
+    switch (currentStage) {
+      case 'analyzing':
+        return "Analyzing video content...";
+      case 'encoding':
+        return "Encoding video in multiple formats...";
+      case 'optimizing':
+        return "Optimizing for quality and performance...";
+      case 'finalizing':
+        return "Finalizing the encoded videos...";
+      default:
+        return "Processing video...";
     }
   };
 
@@ -106,7 +108,7 @@ export function VideoUpload({ onVideoUploaded }: { onVideoUploaded: (videoData: 
             className="cursor-pointer"
           />
           <CustomButton
-            onClick={uploadVideo}
+            onClick={processVideo}
             disabled={!selectedFile || uploading}
             className="w-full md:w-auto"
           >
@@ -117,12 +119,29 @@ export function VideoUpload({ onVideoUploaded }: { onVideoUploaded: (videoData: 
         {uploading && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Processing video...</span>
-              <span>{progress}%</span>
+              <span>{getCurrentStage()}</span>
+              <span>{calculateOverallProgress()}%</span>
             </div>
-            <Progress value={progress} />
-            <p className="text-xs text-muted-foreground">
-              Converting your video to HLS, DASH, and Content-Aware formats
+            <Progress value={calculateOverallProgress()} />
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+              {Object.entries(encodingProgress).map(([format, progress]) => (
+                <div key={format} className="text-xs">
+                  <div className="flex justify-between mb-1">
+                    <span className="font-medium">
+                      {format === 'hls' ? 'HLS' : 
+                       format === 'dash' ? 'DASH' : 
+                       'Content-Aware'}:
+                    </span>
+                    <span>{progress.percent}%</span>
+                  </div>
+                  <Progress value={progress.percent} className="h-1" />
+                </div>
+              ))}
+            </div>
+            
+            <p className="text-xs text-muted-foreground mt-2">
+              Converting your video to HLS, DASH, and Content-Aware formats with VMAF quality analysis
             </p>
           </div>
         )}
