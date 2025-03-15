@@ -56,7 +56,7 @@ export function MetricsDashboard({ videoData }: MetricsDashboardProps = {}) {
     
     const caBandwidth = parseInt(videoData.formats.contentAware.metrics.bandwidth.replace(/\D/g, ''));
     const hlsBandwidth = parseInt(videoData.formats.hls.metrics.bandwidth.replace(/\D/g, ''));
-    const dashBandwidth = parseInt(videoData.formats.dash.metrics.bandwidth.replace(/\D/g, '));
+    const dashBandwidth = parseInt(videoData.formats.dash.metrics.bandwidth.replace(/\D/g, ''));
     
     return {
       bitrateData: timePoints.map((tp, i) => ({
@@ -133,7 +133,7 @@ export function MetricsDashboard({ videoData }: MetricsDashboardProps = {}) {
     
     const caBandwidth = parseInt(videoData.formats.contentAware.metrics.bandwidth.replace(/\D/g, ''));
     const hlsBandwidth = parseInt(videoData.formats.hls.metrics.bandwidth.replace(/\D/g, ''));
-    const dashBandwidth = parseInt(videoData.formats.dash.metrics.bandwidth.replace(/\D/g, '));
+    const dashBandwidth = parseInt(videoData.formats.dash.metrics.bandwidth.replace(/\D/g, ''));
     
     const originalSize = Math.round(videoData.size / (1024 * 1024)); // MB
     const caSize = Math.round(originalSize * (caBandwidth / 100));
