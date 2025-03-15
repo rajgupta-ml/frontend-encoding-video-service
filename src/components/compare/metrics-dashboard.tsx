@@ -9,33 +9,33 @@ export function MetricsDashboard() {
 
   // Mock data for demonstration purposes
   const bitrateData = [
-    { name: "0s", "Content-Aware": 2.1, "HLS": 3.2, "FFmpeg": 4.0 },
-    { name: "10s", "Content-Aware": 1.8, "HLS": 3.2, "FFmpeg": 4.0 },
-    { name: "20s", "Content-Aware": 3.2, "HLS": 2.4, "FFmpeg": 4.0 },
-    { name: "30s", "Content-Aware": 2.9, "HLS": 3.8, "FFmpeg": 4.0 },
-    { name: "40s", "Content-Aware": 1.5, "HLS": 1.9, "FFmpeg": 4.0 },
-    { name: "50s", "Content-Aware": 2.8, "HLS": 3.0, "FFmpeg": 4.0 },
-    { name: "60s", "Content-Aware": 3.1, "HLS": 3.5, "FFmpeg": 4.0 },
+    { name: "0s", "Content-Aware": 2.1, "HLS": 3.2, "DASH": 3.5 },
+    { name: "10s", "Content-Aware": 1.8, "HLS": 3.2, "DASH": 3.5 },
+    { name: "20s", "Content-Aware": 3.2, "HLS": 2.4, "DASH": 3.5 },
+    { name: "30s", "Content-Aware": 2.9, "HLS": 3.8, "DASH": 2.8 },
+    { name: "40s", "Content-Aware": 1.5, "HLS": 1.9, "DASH": 3.5 },
+    { name: "50s", "Content-Aware": 2.8, "HLS": 3.0, "DASH": 3.1 },
+    { name: "60s", "Content-Aware": 3.1, "HLS": 3.5, "DASH": 3.5 },
   ];
 
   const qualityData = [
-    { name: "0s", "Content-Aware": 8.5, "HLS": 8.2, "FFmpeg": 9.1 },
-    { name: "10s", "Content-Aware": 8.7, "HLS": 8.3, "FFmpeg": 9.1 },
-    { name: "20s", "Content-Aware": 8.9, "HLS": 7.6, "FFmpeg": 9.1 },
-    { name: "30s", "Content-Aware": 8.8, "HLS": 8.5, "FFmpeg": 9.1 },
-    { name: "40s", "Content-Aware": 8.2, "HLS": 8.0, "FFmpeg": 9.1 },
-    { name: "50s", "Content-Aware": 8.6, "HLS": 8.2, "FFmpeg": 9.1 },
-    { name: "60s", "Content-Aware": 8.8, "HLS": 8.4, "FFmpeg": 9.1 },
+    { name: "0s", "Content-Aware": 8.5, "HLS": 8.2, "DASH": 8.5 },
+    { name: "10s", "Content-Aware": 8.7, "HLS": 8.3, "DASH": 8.5 },
+    { name: "20s", "Content-Aware": 8.9, "HLS": 7.6, "DASH": 8.5 },
+    { name: "30s", "Content-Aware": 8.8, "HLS": 8.5, "DASH": 8.0 },
+    { name: "40s", "Content-Aware": 8.2, "HLS": 8.0, "DASH": 8.5 },
+    { name: "50s", "Content-Aware": 8.6, "HLS": 8.2, "DASH": 8.4 },
+    { name: "60s", "Content-Aware": 8.8, "HLS": 8.4, "DASH": 8.5 },
   ];
 
   const bandwidthData = [
-    { name: "0s", "Content-Aware": 68, "HLS": 85, "FFmpeg": 100 },
-    { name: "10s", "Content-Aware": 60, "HLS": 85, "FFmpeg": 100 },
-    { name: "20s", "Content-Aware": 78, "HLS": 62, "FFmpeg": 100 },
-    { name: "30s", "Content-Aware": 75, "HLS": 92, "FFmpeg": 100 },
-    { name: "40s", "Content-Aware": 58, "HLS": 56, "FFmpeg": 100 },
-    { name: "50s", "Content-Aware": 72, "HLS": 80, "FFmpeg": 100 },
-    { name: "60s", "Content-Aware": 75, "HLS": 88, "FFmpeg": 100 },
+    { name: "0s", "Content-Aware": 68, "HLS": 85, "DASH": 90 },
+    { name: "10s", "Content-Aware": 60, "HLS": 85, "DASH": 90 },
+    { name: "20s", "Content-Aware": 78, "HLS": 62, "DASH": 90 },
+    { name: "30s", "Content-Aware": 75, "HLS": 92, "DASH": 70 },
+    { name: "40s", "Content-Aware": 58, "HLS": 56, "DASH": 90 },
+    { name: "50s", "Content-Aware": 72, "HLS": 80, "DASH": 85 },
+    { name: "60s", "Content-Aware": 75, "HLS": 88, "DASH": 90 },
   ];
 
   const comparisonData = [
@@ -43,35 +43,35 @@ export function MetricsDashboard() {
       metric: "Average Bitrate", 
       "Content-Aware": 2.5, 
       "HLS": 3.2, 
-      "FFmpeg": 4.0,
+      "DASH": 3.5,
       unit: "Mbps" 
     },
     { 
       metric: "Quality Score", 
       "Content-Aware": 8.7, 
       "HLS": 8.3, 
-      "FFmpeg": 9.1,
+      "DASH": 8.5,
       unit: "/10" 
     },
     { 
       metric: "Load Time", 
       "Content-Aware": 1.2, 
       "HLS": 0.8, 
-      "FFmpeg": 1.5,
+      "DASH": 0.9,
       unit: "seconds" 
     },
     { 
       metric: "Bandwidth Usage", 
       "Content-Aware": 70, 
       "HLS": 85, 
-      "FFmpeg": 100,
+      "DASH": 90,
       unit: "%" 
     },
     { 
       metric: "File Size", 
       "Content-Aware": 28, 
       "HLS": 37, 
-      "FFmpeg": 45,
+      "DASH": 40,
       unit: "MB" 
     }
   ];
@@ -185,7 +185,7 @@ export function MetricsDashboard() {
               <Legend />
               <Bar dataKey="Content-Aware" fill="#3b82f6" barSize={20} />
               <Bar dataKey="HLS" fill="#8b5cf6" barSize={20} />
-              <Bar dataKey="FFmpeg" fill="#10b981" barSize={20} />
+              <Bar dataKey="DASH" fill="#10b981" barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -203,7 +203,7 @@ export function MetricsDashboard() {
               <Legend />
               <Line type="monotone" dataKey="Content-Aware" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
               <Line type="monotone" dataKey="HLS" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="FFmpeg" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="DASH" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         )}
@@ -221,7 +221,7 @@ export function MetricsDashboard() {
               <Legend />
               <Area type="monotone" dataKey="Content-Aware" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
               <Area type="monotone" dataKey="HLS" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} />
-              <Area type="monotone" dataKey="FFmpeg" stroke="#10b981" fill="#10b981" fillOpacity={0.2} />
+              <Area type="monotone" dataKey="DASH" stroke="#10b981" fill="#10b981" fillOpacity={0.2} />
             </AreaChart>
           </ResponsiveContainer>
         )}
@@ -239,7 +239,7 @@ export function MetricsDashboard() {
               <Legend />
               <Line type="monotone" dataKey="Content-Aware" stroke="#3b82f6" strokeWidth={2} />
               <Line type="monotone" dataKey="HLS" stroke="#8b5cf6" strokeWidth={2} />
-              <Line type="monotone" dataKey="FFmpeg" stroke="#10b981" strokeWidth={2} />
+              <Line type="monotone" dataKey="DASH" stroke="#10b981" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         )}

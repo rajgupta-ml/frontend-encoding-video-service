@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { CustomButton } from "@/components/ui/custom-button";
 import { cn } from "@/lib/utils";
+import { VideoUpload } from "./video-upload";
 
 interface VideoPlayerProps {
   title: string;
@@ -128,13 +129,14 @@ const VideoPlayer = ({ title, source, placeholder, encodingMethod, metrics }: Vi
 export function VideoComparison() {
   const [layout, setLayout] = useState<"grid" | "vertical">("grid");
   const [showControls, setShowControls] = useState(true);
+  const [videoData, setVideoData] = useState<any>(null);
   
-  // Mock data for demonstration
-  const videos = [
+  // Default mock data for demonstration
+  const defaultVideos = [
     {
       id: 1,
       title: "Content-Aware Encoding",
-      encodingMethod: "Content-Aware",
+      encodingMethod: "Content-Aware (VMAF)",
       metrics: {
         bitrate: "2.5 Mbps (variable)",
         quality: 8.7,
@@ -155,19 +157,50 @@ export function VideoComparison() {
     },
     {
       id: 3,
-      title: "FFmpeg Standard",
-      encodingMethod: "FFmpeg",
+      title: "DASH Encoding",
+      encodingMethod: "DASH",
       metrics: {
-        bitrate: "4.0 Mbps (fixed)",
-        quality: 9.1,
-        loadTime: "1.5s",
-        bandwidth: "100% of original"
+        bitrate: "3.5 Mbps (adaptive)",
+        quality: 8.5,
+        loadTime: "0.9s",
+        bandwidth: "~90% of original"
       }
     }
   ];
 
+  // Videos to display
+  const videos = videoData ? [
+    {
+      id: 1,
+      title: "Content-Aware Encoding",
+      source: videoData.formats.contentAware.url,
+      encodingMethod: "Content-Aware (VMAF)",
+      metrics: videoData.formats.contentAware.metrics
+    },
+    {
+      id: 2,
+      title: "HLS Encoding",
+      source: videoData.formats.hls.url,
+      encodingMethod: "HLS",
+      metrics: videoData.formats.hls.metrics
+    },
+    {
+      id: 3,
+      title: "DASH Encoding",
+      source: videoData.formats.dash.url,
+      encodingMethod: "DASH",
+      metrics: videoData.formats.dash.metrics
+    }
+  ] : defaultVideos;
+
+  const handleVideoUploaded = (data: any) => {
+    setVideoData(data);
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
+      <VideoUpload onVideoUploaded={handleVideoUploaded} />
+      
       {showControls && (
         <div className="bg-card border rounded-lg p-4 mb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -204,14 +237,6 @@ export function VideoComparison() {
                   </button>
                 </div>
               </div>
-              
-              <CustomButton
-                variant="outline"
-                size="sm"
-                className="text-xs"
-              >
-                Upload New Video
-              </CustomButton>
             </div>
           </div>
         </div>
@@ -226,6 +251,7 @@ export function VideoComparison() {
             <VideoPlayer
               key={video.id}
               title={video.title}
+              source={video.source}
               encodingMethod={video.encodingMethod}
               metrics={video.metrics}
             />
